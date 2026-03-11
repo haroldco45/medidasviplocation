@@ -3,97 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InmoMedidas Pro - Herramienta de Campo</title>
+    <title>InmoTech Colombia 🇨🇴</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; }
-        .card { background: white; padding: 1.5rem; border-radius: 0.75rem; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .card-co { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="p-4 pb-24">
+<body class="p-4 pb-40">
 
-    <header class="mb-6">
-        <h1 class="text-2xl font-bold text-blue-800">InmoMedidas Pro</h1>
-        <p class="text-gray-500 text-sm">Registro Técnico de Inmuebles</p>
+    <header class="mb-6 flex justify-between items-start">
+        <div>
+            <h1 class="text-2xl font-black text-yellow-600">Inmo<span class="text-blue-700">Tech</span><span class="text-red-600"> CO</span></h1>
+            <p id="fecha-colombia" class="text-gray-500 text-xs font-bold uppercase tracking-wider"></p>
+        </div>
+        <div class="text-right">
+            <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-bold">ESTÁNDAR COLOMBIA 🇨🇴</span>
+        </div>
     </header>
 
-    <section class="card mb-6">
-        <h2 class="font-semibold mb-3 border-b pb-2 text-gray-700">Información General</h2>
-        <div class="grid grid-cols-1 gap-4">
-            <input type="text" placeholder="Dirección / ID Propiedad" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-            <input type="text" placeholder="Responsable del levantamiento" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-    </section>
+    <div id="lista-ambientes"></div>
 
-    <section id="lista-ambientes" class="space-y-4">
-        </section>
-
-    <button onclick="agregarAmbiente()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2">
-        <span>+</span> Agregar Ambiente / Habitación
+    <button onclick="agregarAmbiente()" class="w-full bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+        <span class="text-2xl">+</span> AGREGAR ESPACIO
     </button>
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center shadow-lg">
-        <div>
-            <p class="text-xs text-gray-500 uppercase font-bold">Área Total Calculada</p>
-            <p class="text-2xl font-black text-blue-800"><span id="area-total">0.00</span> m²</p>
+    <footer class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-blue-800 p-4 shadow-2xl">
+        <div class="grid grid-cols-3 gap-2 text-center">
+            <div>
+                <span class="text-[10px] text-gray-400 uppercase block">Área Total</span>
+                <span class="text-lg font-bold text-blue-800"><span id="total-m2">0.00</span> m²</span>
+            </div>
+            <div>
+                <span class="text-[10px] text-gray-400 uppercase block">Cemento (50kg)</span>
+                <span class="text-lg font-bold text-orange-700"><span id="total-cemento">0</span> und</span>
+            </div>
+            <div>
+                <span class="text-[10px] text-gray-400 uppercase block">Cable (N.12)</span>
+                <span class="text-lg font-bold text-green-700"><span id="total-cable">0</span> m</span>
+            </div>
         </div>
-        <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            Exportar Reporte
-        </button>
     </footer>
 
-    <template id="template-ambiente">
-        <div class="card ambiente shadow-sm border-l-4 border-blue-500 relative">
-            <button onclick="this.parentElement.remove(); calcularTodo();" class="absolute top-2 right-2 text-red-400 text-xl font-bold">&times;</button>
+    <template id="tpl">
+        <div class="card-co relative ambiente">
+            <button onclick="this.parentElement.remove(); calcular();" class="absolute top-2 right-2 text-red-300">✕</button>
             
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="col-span-2">
-                    <input type="text" placeholder="Nombre (Ej: Sala, Cocina...)" class="w-full font-bold text-gray-700 border-b focus:border-blue-500 outline-none p-1">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 uppercase">Largo (m)</label>
-                    <input type="number" step="0.01" oninput="calcularTodo()" class="input-largo w-full p-2 border rounded bg-gray-50 focus:bg-white transition" placeholder="0.00">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 uppercase">Ancho (m)</label>
-                    <input type="number" step="0.01" oninput="calcularTodo()" class="input-ancho w-full p-2 border rounded bg-gray-50 focus:bg-white transition" placeholder="0.00">
-                </div>
+            <div class="mb-4">
+                <input type="text" placeholder="Ej: Alcoba Principal / Patio" class="w-full font-bold text-gray-800 border-none border-b-2 border-gray-100 focus:border-blue-500 focus:ring-0 text-lg">
             </div>
             
-            <div class="flex justify-between items-center bg-blue-50 p-2 rounded">
-                <span class="text-xs font-bold text-blue-600 uppercase">Subtotal:</span>
-                <span class="font-mono font-bold text-blue-800"><span class="subtotal-area">0.00</span> m²</span>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Largo (Metros)</label>
+                    <input type="number" step="0.01" class="largo w-full p-2 bg-gray-50 border rounded-lg" oninput="calcular()" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Ancho (Metros)</label>
+                    <input type="number" step="0.01" class="ancho w-full p-2 bg-gray-50 border rounded-lg" oninput="calcular()" placeholder="0.00">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2">
+                <div class="flex justify-between p-2 bg-blue-50 rounded-md">
+                    <span class="text-xs text-blue-800 font-medium italic font-serif">❄️ Aire (Clima Cálido CO):</span>
+                    <span class="text-xs font-black text-blue-900"><span class="res-btu">0</span> BTU</span>
+                </div>
+                <div class="flex justify-between p-2 bg-orange-50 rounded-md">
+                    <span class="text-xs text-orange-800 font-medium italic font-serif">🧱 Bultos Cemento (Piso 5cm):</span>
+                    <span class="text-xs font-black text-orange-900"><span class="res-cemento">0</span> bultos</span>
+                </div>
+                <div class="flex justify-between p-2 bg-green-50 rounded-md">
+                    <span class="text-xs text-green-800 font-medium italic font-serif">⚡ Cable Eléctrico Est.:</span>
+                    <span class="text-xs font-black text-green-900"><span class="res-cable">0</span> metros</span>
+                </div>
             </div>
         </div>
     </template>
 
     <script>
+        // Configuración de Fecha y Hora Colombia
+        function actualizarFecha() {
+            const ahora = new Date();
+            const opciones = { 
+                timeZone: 'America/Bogota', 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('fecha-colombia').innerText = ahora.toLocaleString('es-CO', opciones);
+        }
+        setInterval(actualizarFecha, 1000);
+        actualizarFecha();
+
         function agregarAmbiente() {
             const lista = document.getElementById('lista-ambientes');
-            const template = document.getElementById('template-ambiente');
-            const clon = template.content.cloneNode(true);
-            lista.appendChild(clon);
+            const tpl = document.getElementById('tpl');
+            lista.appendChild(tpl.content.cloneNode(true));
         }
 
-        function calcularTodo() {
-            let totalGeneral = 0;
+        function calcular() {
+            let aTotal = 0, cTotal = 0, cabTotal = 0;
             const ambientes = document.querySelectorAll('.ambiente');
 
             ambientes.forEach(amb => {
-                const largo = parseFloat(amb.querySelector('.input-largo').value) || 0;
-                const ancho = parseFloat(amb.querySelector('.input-ancho').value) || 0;
-                const subtotal = largo * ancho;
-                
-                amb.querySelector('.subtotal-area').innerText = subtotal.toFixed(2);
-                totalGeneral += subtotal;
+                const l = parseFloat(amb.querySelector('.largo').value) || 0;
+                const a = parseFloat(amb.querySelector('.ancho').value) || 0;
+                const m2 = l * a;
+                const perim = (l + a) * 2;
+
+                // 1. Aire Acondicionado para Colombia (Promedio 650 BTU/m2 por humedad/calor)
+                let btu = m2 * 650;
+                if(m2 > 0 && btu < 9000) btu = 9000; 
+
+                // 2. Cemento (Bultos de 50kg estándar en Colombia)
+                // Para un acabado de piso normal (5cm), se estima 0.48 bultos por m2
+                const cem = (m2 * 0.48).toFixed(1);
+
+                // 3. Cableado (Estimación técnica de metros lineales por área)
+                const cab = (m2 * 2.5).toFixed(1);
+
+                amb.querySelector('.res-btu').innerText = Math.ceil(btu / 1000) * 1000;
+                amb.querySelector('.res-cemento').innerText = cem;
+                amb.querySelector('.res-cable').innerText = cab;
+
+                aTotal += m2;
+                cTotal += parseFloat(cem);
+                cabTotal += parseFloat(cab);
             });
 
-            document.getElementById('area-total').innerText = totalGeneral.toFixed(2);
+            document.getElementById('total-m2').innerText = aTotal.toFixed(2);
+            document.getElementById('total-cemento').innerText = cTotal.toFixed(1);
+            document.getElementById('total-cable').innerText = cabTotal.toFixed(1);
         }
 
-        // Agregar el primer ambiente al cargar
         window.onload = agregarAmbiente;
     </script>
-
 </body>
 </html>
