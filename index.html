@@ -3,134 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InmoTech Pro - Consumo y Costos 🇨🇴</title>
+    <title>InmoTech Pro 2026 🇨🇴</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .mono { font-family: 'Roboto Mono', monospace; }
-        .section-card { background: white; border-radius: 1rem; padding: 1.2rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .card-habitacion { background: white; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; position: relative; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        input:checked + .slider { background-color: #2563eb; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body class="p-4 pb-44">
 
-    <header class="mb-4 flex justify-between items-center">
-        <h1 class="text-xl font-black text-slate-800">InmoTech <span class="text-blue-600">Calculador</span></h1>
-        <div id="reloj" class="text-[10px] font-bold text-right text-slate-500 uppercase"></div>
+    <header class="mb-4 flex justify-between items-end">
+        <div>
+            <h1 class="text-xl font-black text-slate-900">InmoTech <span class="text-blue-600">Master</span></h1>
+            <p id="reloj" class="text-[10px] font-bold text-blue-800 mono uppercase"></p>
+        </div>
+        <div class="text-right">
+            <span class="text-[10px] bg-slate-200 px-2 py-1 rounded font-bold">ESTÁNDAR COLOMBIA 2026</span>
+        </div>
     </header>
 
-    <details class="mb-4 bg-slate-100 p-3 rounded-lg">
-        <summary class="text-xs font-bold uppercase cursor-pointer">⚙️ Ajustar Tarifas (COP)</summary>
-        <div class="grid grid-cols-2 gap-4 mt-2">
+    <div class="mb-4 bg-white p-3 rounded-lg border text-xs shadow-sm">
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="text-[10px] block font-bold">Precio kWh (Luz)</label>
-                <input type="number" id="t-luz" value="850" oninput="calcPiscina()" class="w-full p-1 text-sm border rounded">
+                <label class="font-bold text-slate-500 uppercase block mb-1">kWh Energía (COP)</label>
+                <input type="number" id="val-kwh" value="950" oninput="calcularTodo()" class="w-full border rounded p-1">
             </div>
             <div>
-                <label class="text-[10px] block font-bold">Precio m³ (Agua)</label>
-                <input type="number" id="t-agua" value="4500" oninput="calcPiscina()" class="w-full p-1 text-sm border rounded">
+                <label class="font-bold text-slate-500 uppercase block mb-1">m³ Agua (COP)</label>
+                <input type="number" id="val-agua" value="4800" oninput="calcularTodo()" class="w-full border rounded p-1">
             </div>
         </div>
-    </details>
+    </div>
 
-    <section class="section-card border-l-4 border-blue-600 shadow-sm">
-        <h2 class="text-sm font-black text-blue-800 mb-3 uppercase">📐 Medidas y Consumo de Piscina</h2>
-        <div class="grid grid-cols-3 gap-2 mb-4">
-            <input type="number" id="p-l" oninput="calcPiscina()" placeholder="Largo" class="p-2 border rounded text-sm">
-            <input type="number" id="p-a" oninput="calcPiscina()" placeholder="Ancho" class="p-2 border rounded text-sm">
-            <input type="number" id="p-p" oninput="calcPiscina()" placeholder="Prof" class="p-2 border rounded text-sm">
-        </div>
+    <div id="contenedor-areas"></div>
 
-        <div class="space-y-2 bg-slate-50 p-3 rounded-lg">
-            <div class="flex justify-between text-sm">
-                <span class="text-slate-500">Volumen Agua:</span>
-                <span class="font-bold text-slate-800"><span id="res-m3">0</span> m³</span>
-            </div>
-            <div class="flex justify-between text-sm border-t pt-2">
-                <span class="text-blue-700 font-bold italic">💧 Costo Llenado:</span>
-                <span class="font-bold text-blue-900 mono">$<span id="costo-agua">0</span></span>
-            </div>
-            <div class="flex justify-between text-sm border-t pt-2">
-                <span class="text-amber-600 font-bold italic">⚡ Energía Mes (Bomba):</span>
-                <span class="font-bold text-amber-900 mono">$<span id="costo-luz">0</span></span>
-            </div>
-            <p class="text-[9px] text-slate-400 mt-2">Estimado: Bomba encendida 6h/día + Llenado único.</p>
-        </div>
-    </section>
-
-    <div id="lista-ambientes"></div>
-    <button onclick="agregarAmbiente()" class="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-100">
-        + AGREGAR OTRO AMBIENTE
+    <button onclick="agregarArea()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2 mb-6">
+        <span>+</span> AGREGAR HABITACIÓN / ÁREA
     </button>
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-slate-200 p-4 shadow-2xl">
-        <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold text-slate-400 uppercase">Gasto Operativo Mensual Est.</span>
-            <span class="text-xl font-black text-green-600 mono">$<span id="total-dinero">0</span></span>
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-5 shadow-2xl rounded-t-3xl">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Gasto Eléctrico Estimado (Mes)</p>
+                <p class="text-2xl font-black text-green-400">$<span id="total-luz">0</span></p>
+            </div>
+            <button onclick="window.print()" class="bg-white text-slate-900 px-4 py-2 rounded-lg font-bold text-xs uppercase">Reporte PDF</button>
         </div>
-        <button onclick="window.print()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase tracking-widest text-xs">
-            Descargar Reporte Técnico
-        </button>
     </footer>
 
-    <template id="tpl">
-        <div class="section-card relative ambiente">
-            <button onclick="this.parentElement.remove(); calcPiscina();" class="absolute top-2 right-2 text-slate-300">✕</button>
-            <input type="text" placeholder="Nombre (Ej: Cuarto Máquinas)" class="font-bold border-none p-0 focus:ring-0 text-sm mb-2 w-full uppercase">
-            <div class="flex gap-2">
-                <input type="number" step="0.01" class="largo w-1/2 p-2 bg-slate-50 border rounded text-sm" oninput="calcPiscina()" placeholder="Largo">
-                <input type="number" step="0.01" class="ancho w-1/2 p-2 bg-slate-50 border rounded text-sm" oninput="calcPiscina()" placeholder="Ancho">
+    <template id="tpl-area">
+        <div class="card-habitacion area-item shadow-sm">
+            <button onclick="this.parentElement.remove(); calcularTodo();" class="absolute top-2 right-3 text-slate-300 font-bold">✕</button>
+            
+            <div class="mb-3">
+                <input type="text" placeholder="Nombre del Área (Ej: Sala, Cuarto 1...)" class="w-full font-bold text-slate-800 border-none p-0 focus:ring-0 uppercase text-sm">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <input type="number" placeholder="Largo (m)" class="largo p-2 bg-slate-50 border rounded-lg text-sm" oninput="calcularTodo()">
+                <input type="number" placeholder="Ancho (m)" class="ancho p-2 bg-slate-50 border rounded-lg text-sm" oninput="calcularTodo()">
+            </div>
+
+            <div class="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
+                <div class="flex items-center gap-2">
+                    <label class="switch">
+                        <input type="checkbox" class="usa-aire" onchange="calcularTodo()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="text-xs font-bold text-blue-900">¿Lleva Aire Acondicionado?</span>
+                </div>
+                <div class="text-right">
+                    <span class="block text-[10px] text-blue-400 font-bold uppercase">Sugerido</span>
+                    <span class="font-black text-blue-700 text-sm"><span class="btu-val">0</span> BTU</span>
+                </div>
             </div>
         </div>
     </template>
 
     <script>
-        // Reloj Colombia 2026
+        // Reloj Colombia
         setInterval(() => {
             document.getElementById('reloj').innerText = new Date().toLocaleString('es-CO', {timeZone: 'America/Bogota'});
         }, 1000);
 
-        function calcPiscina() {
-            // Precios configurables
-            const precioKwh = parseFloat(document.getElementById('t-luz').value) || 0;
-            const precioM3 = parseFloat(document.getElementById('t-agua').value) || 0;
-
-            // Medidas Piscina
-            const l = parseFloat(document.getElementById('p-l').value) || 0;
-            const a = parseFloat(document.getElementById('p-a').value) || 0;
-            const p = parseFloat(document.getElementById('p-p').value) || 0;
-
-            const m3 = l * a * p;
-            
-            // 1. COSTO AGUA (Llenado total)
-            const cAgua = m3 * precioM3;
-
-            // 2. COSTO ENERGÍA (Bomba)
-            // Asumimos bomba según m3: <40m3 = 0.5HP, >40m3 = 1HP
-            let kwBomba = (m3 < 40) ? 0.37 : 0.75; // 0.5HP ~ 0.37kW, 1HP ~ 0.75kW
-            if (m3 == 0) kwBomba = 0;
-            
-            // Gasto mes: kW * 6 horas/día * 30 días
-            const kwhMes = kwBomba * 6 * 30;
-            const cLuz = kwhMes * precioKwh;
-
-            // Renderizar resultados
-            document.getElementById('res-m3').innerText = m3.toFixed(1);
-            document.getElementById('costo-agua').innerText = cAgua.toLocaleString('es-CO');
-            document.getElementById('costo-luz').innerText = Math.round(cLuz).toLocaleString('es-CO');
-            
-            // Total Mensual estimado (Luz + Mantenimiento agua prorrateado)
-            // Se asume que el agua no se cambia cada mes, pero sumamos luz.
-            document.getElementById('total-dinero').innerText = Math.round(cLuz).toLocaleString('es-CO');
+        function agregarArea() {
+            const tpl = document.getElementById('tpl-area');
+            document.getElementById('contenedor-areas').appendChild(tpl.content.cloneNode(true));
         }
 
-        function agregarAmbiente() {
-            const lista = document.getElementById('lista-ambientes');
-            const tpl = document.getElementById('tpl');
-            lista.appendChild(tpl.content.cloneNode(true));
+        function calcularTodo() {
+            let costoLuzTotal = 0;
+            const kwhPrecio = parseFloat(document.getElementById('val-kwh').value) || 0;
+            const areas = document.querySelectorAll('.area-item');
+
+            areas.forEach(item => {
+                const l = parseFloat(item.querySelector('.largo').value) || 0;
+                const a = parseFloat(item.querySelector('.ancho').value) || 0;
+                const llevaAire = item.querySelector('.usa-aire').checked;
+                const m2 = l * a;
+
+                let btu = 0;
+                let costoMensualArea = 0;
+
+                if (llevaAire && m2 > 0) {
+                    // Lógica de BTU: 650 por m2 (Estándar Colombia climas cálidos)
+                    btu = Math.ceil((m2 * 650) / 1000) * 1000;
+                    if (btu < 9000) btu = 9000; // Mínimo comercial
+
+                    // Estimación Consumo Eléctrico Aire:
+                    // Un aire de 12.000 BTU consume aprox 1.1 kWh
+                    // Ratio: BTU / 11000 = kWh aprox.
+                    const consumoKwhHora = btu / 11000; 
+                    // Uso estimado: 8 horas al día por 30 días
+                    const kwhMes = consumoKwhHora * 8 * 30;
+                    costoMensualArea = kwhMes * kwhPrecio;
+                }
+
+                item.querySelector('.btu-val').innerText = btu.toLocaleString();
+                costoLuzTotal += costoMensualArea;
+            });
+
+            document.getElementById('total-luz').innerText = Math.round(costoLuzTotal).toLocaleString('es-CO');
         }
 
-        window.onload = agregarAmbiente;
+        // Agregar la primera área automáticamente
+        window.onload = agregarArea;
     </script>
 </body>
 </html>
